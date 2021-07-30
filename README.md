@@ -15,7 +15,7 @@ script to solve reaction pathways for alevel questions
 * 
 | Hall Mark  | Potential reactions | Product |
 | ------------- | ------------- |  ------------- | 
-| If Contains Halogen(Array) && halogen bonded to carbon && Carbons_initial - Carbon_final > 0  | Dehalogenation  | C3=C4 where C4-Br bond was located |
+| If Contains Halogen(Array) && halogen bonded to carbon && Carbons_initial - Carbon_final > 0  | Dehalogenation  | C<sub>3</sub>=C<sub>4</sub> where C<sub>4</sub>-Br bond was located |
 
 
 
