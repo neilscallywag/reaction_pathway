@@ -1,16 +1,11 @@
 import re as re
 
-
-
 def synthesise(initial,final,steps):
     s = sanitize(initial)
     e = sanitize(final)
-    r = nu_sub(s,e,steps)
-    
+    r = nu_sub(s,e,steps) 
     return print(r)
     
-
-
 def sanitize(a):
     node = re.findall("C",a)
     attachments = re.split("C", a)
@@ -19,11 +14,12 @@ def sanitize(a):
     return molecule
 
 def nu_sub(i,f,steps_left):
+    #need to modify the input product to match intermediate
+    #need to add in stack reagent and conditions
     halogens = ["Br","Cl","I","F","At","Ts"]
     for x in halogens:
         for j in i:
             n = "".join(j.values())
-            print('n',n)
             z = re.findall(x,n)
             if(z):
                 for k in f:
@@ -34,10 +30,6 @@ def nu_sub(i,f,steps_left):
                             return True , steps_left
     return False
                 
-                 
-    
-            
-    
-
-
-synthesise('CH3CH2Br','CH3CH2OH',1)
+synthesise('CH3C(=O)I','CH3CH2OH',1) #error Molecule cannot undergo nu sub
+synthesise('CH3CI','CH3CH2OH',1) #error - carbon valency
+synthesise('CH3CH2Cl','CH3CH2OH',1) #error - Recognises the C in Cl as a carbon node
