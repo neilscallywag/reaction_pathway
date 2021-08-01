@@ -74,7 +74,7 @@ def sanitize(formula): # Written by: mime-r
     dict_1 = []
     for element in split_2:
         dict_1.append({element[0]: element[1]})
-    print(dict_1)
+    return dict_1
 
 def nu_sub(i,f,steps_left):
     #need to modify the input product to match intermediate
