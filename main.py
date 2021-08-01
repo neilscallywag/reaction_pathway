@@ -13,7 +13,7 @@ def valency(i):
 
 def functional_groups(i):
     pass
-
+"""
 def sanitize(a):
     node = re.findall("C",a)
     attachments = re.split("C", a)
@@ -39,7 +39,42 @@ def sanitize(a):
         i.update(u)
     return molecule
 
+"""
 
+def text_num_split(item): #Written by: mime-r
+    for index, letter in enumerate(item, 0):
+        if letter.isdigit():
+            return [item[:index],item[index:]]
+        
+def sanitize(formula): # Written by: mime-r
+    # for example if formula = "CH3CH2Br"
+    split_1 = re.findall('[A-Z][^A-Z]*', formula)
+    # ['C', 'H3', 'C', 'H2', 'Br']
+    
+    # remove Cs
+    split_2 = []
+    count_C = split_1.count("C")
+    for count in range(count_C):
+        split_2.append({})
+        
+    n = -1
+    for element in split_1:
+        if element == "C":
+            n += 1
+            split_2[n] = ['C', []]
+        else:
+            r = text_num_split(element)
+            if r == None:
+                split_2[n][1].append(element)
+            else:
+                for i in range(int(r[1])):
+                    split_2[n][1].append(r[0])
+    # [['C', ['H', 'H', 'H']], ['C', ['H', 'H', 'Br']]]
+    # now convert it into dict
+    dict_1 = []
+    for element in split_2:
+        dict_1.append({element[0]: element[1]})
+    print(dict_1)
 
 def nu_sub(i,f,steps_left):
     #need to modify the input product to match intermediate
