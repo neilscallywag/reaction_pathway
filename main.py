@@ -1,4 +1,8 @@
 import re as re
+import logger as Logger
+
+
+l = Logger()
 
 
 def synthesise(initial, final, steps):
