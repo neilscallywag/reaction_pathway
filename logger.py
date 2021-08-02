@@ -18,7 +18,7 @@ class Logger:
             f.write(f"{round(time.time())} [LOG] {this}\n")
         #print(f"[LOG] {this}")
     def fatal(self, this):
-        input(f"[FATAL ERROR]: {this}\n\n[Logs: {self.log_file}]\n{self.get_logs()}\n\n[enter to exit]")
+        input(f"[FATAL]: {this}\n\n[Logs: {self.log_file}]\n{self.get_logs()}\n\n[enter to exit]")
         sys.exit(-1)
     def error(self, this):
         with open(self.log_file, "a") as f:
