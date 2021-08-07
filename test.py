@@ -1,5 +1,6 @@
 import pprint
 import requests
+import random
 pp = pprint.PrettyPrinter(indent=4)   
 class molecule:
     def __init__(self):
@@ -19,6 +20,7 @@ class molecule:
         current = len(self.molecule[atom])
         if atom in self.molecule[atom]:
             current += 1
+        return current
     def get_atom(self,index):
         k = list(self.molecule)
         key = k[index]
@@ -112,12 +114,13 @@ def convert(ids):
     except Exception as e:
         l.fatal({traceback.print_exc()})  # haven't tested this yet lol
 
-e = "2,4-Dinitrophenylhydrazine"
-z = 'NNccc(ccc[N+]([O-])=O)[N+]([O-])=O'
+
+z = random.choice(['NNccc(ccc[N+]([O-])=O)[N+]([O-])=O','[Cu+2].[O-]S(=O)(=O)[O-]','OCCc1c(C)[n+](cs1)Cc2cnc(C)nc2N','COc1cc(C=O)ccc1O'])
+
 g = molecule()
 index = 0
 
-def smilez(z):
+def smile(z,g):
     anchor = None
     index = 0
     next_bond = None
@@ -158,20 +161,18 @@ def smilez(z):
                 elif int(index - 1) == jdx:
                     print("error2")
                 if next_bond is not None:
-                   
-                    g.add_bond(index-1,jdx,next_bond)
+                    g.add_bond(g.get_atom(index-1),g.get_atom(jdx),next_bond)
                     next_bond = None
-                    break
                 next_bond = None
                 del rings[token]
             else:
                 rings[token] = (index-1,next_bond)
-                break
+              
     return None
-
-smilez(z)
+print(z)
+smile(z,g)
     
 pp.pprint(g.graph())
         
-
+print(g.get_surrounding_atoms(g.get_atom(8)))
             
