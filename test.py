@@ -2,6 +2,10 @@ import pprint
 import requests
 import random
 import operator
+import networkx as nx
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 pp = pprint.PrettyPrinter(indent=4)   
 class molecule:
     def __init__(self):
@@ -117,7 +121,14 @@ def convert(ids):
     except Exception as e:
         l.fatal({traceback.print_exc()})  # haven't tested this yet lol
 
-z = random.choice(['NNccc(ccc[N+]([O-])=O)[N+]([O-])=O','[Cu+2].[O-]S(=O)(=O)[O-]','OCCc1c(C)[n+](cs1)Cc2cnc(C)nc2N','COc1cc(C=O)ccc1O'])
+z = random.choice(['NNccc(ccc[N+]([O-])=O)[N+]([O-])=O',
+                   '[Cu+2].[O-]S(=O)(=O)[O-]',
+                   'OCCc1c(C)[n+](cs1)Cc2cnc(C)nc2N',
+                   'COc1cc(C=O)ccc1O',
+                   'CC(=O)OC1=CC=CC=C1C(=O)O',
+                   'C(C1C(C(C(C(O1)O)O)O)O)O',
+                   'C(I)(I)I',
+                   'CCOCC'])
 g = molecule()
 
 def smile(z,g):
@@ -150,6 +161,7 @@ def smile(z,g):
             if token in rings:
                 jdx, order = rings[token]
                 if next_bond is None and order is None:
+                    
                     next_bond = 1
                 elif order is None:
                     next_bond = 1
@@ -170,8 +182,12 @@ def smile(z,g):
     return None
 print(z)
 smile(z,g)   
-pp.pprint(g.graph())       
-print(g.get_surrounding_atoms(g.get_atom(8)))
-print(g.bond_sum(g.get_atom(2)))
-g.nodes()
+lol = g.graph()
+lolz = nx.Graph(lol)
+nx.draw_networkx(lolz, with_labels = True, node_color = "c", edge_color = "k", font_size = 8)
+
+plt.axis('off')
+plt.draw()
+plt.savefig("graph.pdf")
+
             
