@@ -1,6 +1,7 @@
 import pprint
 import requests
 import random
+import operator
 pp = pprint.PrettyPrinter(indent=4)   
 class molecule:
     def __init__(self):
@@ -8,9 +9,15 @@ class molecule:
     def add_atom(self,atom):
             self.molecule[atom] = [] 
     def graph(self):
-        return self.molecule
+        d = {}
+        for k,v in self.molecule.items():
+            z = [x[0].index for x in v]          
+            d[k.index] = z
+        return d
+             
     def add_bond(self,u,v,w=1):
         self.molecule[u].append((v,w))
+        self.molecule[v].append((u,w))
     def nodes(self):
         return [x.attributes() for x in self.molecule.keys()]
     def bonds(self):
@@ -25,6 +32,11 @@ class molecule:
         k = list(self.molecule)
         key = k[index]
         return key
+    def bond_sum(self,atom):
+        s = 0
+        for x,y in self.molecule[atom]:
+            s += y
+        return s          
     def add_hydrogens(self):
         pass
     def fix_valence(self):
@@ -45,17 +57,15 @@ class atom(object):
         return self.valency
     def index(self):
         return self.index
+    def name(self):
+        return self.name
        
 #idea extracted from pysmiles library 
 def tokenise(smiles):
     o = 'B C N O P S F Cl Br I * b c n o s p'.split()
     smiles = iter(z)
     queue =[]
-    token = ''
-    tree = {}
-    bonds = {}
-
-
+    token = '' 
     valency_table = {"B": (3,), "C": (4,), "N": (3, 5), "O": (2,), "P": (3, 5), "S": (2, 4, 6), "F": (1,), "Cl": (1,), "Br": (1,),"I": (1,)}
     peek = None
     while True:
@@ -97,16 +107,9 @@ def tokenise(smiles):
             queue.append(('eb', ')'))
         elif char.isdigit() :
             queue.append(('ring',char))
-
     return queue
-        
-                
-
-
-
-                
+                                      
 def convert(ids):
-
     try:
         url = f"http://cactus.nci.nih.gov/chemical/structure/{ids}/smiles"
         ans = requests.get(url).text
@@ -114,11 +117,8 @@ def convert(ids):
     except Exception as e:
         l.fatal({traceback.print_exc()})  # haven't tested this yet lol
 
-
 z = random.choice(['NNccc(ccc[N+]([O-])=O)[N+]([O-])=O','[Cu+2].[O-]S(=O)(=O)[O-]','OCCc1c(C)[n+](cs1)Cc2cnc(C)nc2N','COc1cc(C=O)ccc1O'])
-
 g = molecule()
-index = 0
 
 def smile(z,g):
     anchor = None
@@ -166,13 +166,12 @@ def smile(z,g):
                 next_bond = None
                 del rings[token]
             else:
-                rings[token] = (index-1,next_bond)
-              
+                rings[token] = (index-1,next_bond)     
     return None
 print(z)
-smile(z,g)
-    
-pp.pprint(g.graph())
-        
+smile(z,g)   
+pp.pprint(g.graph())       
 print(g.get_surrounding_atoms(g.get_atom(8)))
+print(g.bond_sum(g.get_atom(2)))
+g.nodes()
             
