@@ -1,4 +1,3 @@
-
 import requests
 import random
 import operator
@@ -6,16 +5,11 @@ import networkx as nx
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
 group_13 = ['B','Al', 'Ga','In']
 group_14 = ['C','c','Si','Ge','Sn','Pb']
 group_15 = ['N','n','P','As']
-group_16 = ['O','o','S','Se']
+group_16 = ['O','o','S','s','Se']
 group_17 = ['F','Cl','Br','I']
-
-
-
-# Molecule is initialised 
 class molecule:
     def __init__(self):
         self.molecule = {} 
@@ -28,8 +22,7 @@ class molecule:
             d[k.index] = z
         return d
     def schema(self):
-        return self.molecule
-             
+        return self.molecule         
     def add_bond(self,u,v,w=1):
         self.molecule[u].append((v,w))
         self.molecule[v].append((u,w))
@@ -68,23 +61,13 @@ class molecule:
             for hydrogen_index in range(hydrogen_count):
                 self.add_atom(atom(counter,'H'))
                 self.add_bond(self.get_atom(k.index),self.get_atom(counter), 1)
-                counter +=1 
-        
+                counter +=1        
     def fix_valence(self):
         pass
     def fix_charge(self): #currently charges are not included 
         pass
     def fix_aromatic_bonds(self): #currently all aromatic bonds are either order 1 or 2
         pass
-
-#atom is initialised with certain properties
-    #1. A.I index
-    #2. Name
-    #3 Valency min(2 numbers based on bonds)
-    #4. Aromaticity based on if the character is lower cased or upper case
-# To add:
-    #1. Hybridisation to help form aromatic rings
-
 class atom(object):
     def __init__(self,index,name,charge=0):
         self.index = index
@@ -115,10 +98,6 @@ class atom(object):
             return 1
         else:
             return 0
-            
-    
-       
-#idea extracted from pysmiles library 
 def tokenise(smiles):
     o = 'B C N O P S F Cl Br I * b c n o s p'.split()
     smiles = iter(z)
@@ -164,8 +143,7 @@ def tokenise(smiles):
             queue.append(('eb', ')'))
         elif char.isdigit() :
             queue.append(('ring',char))
-    return queue
-                                      
+    return queue                                      
 def convert(ids):
     try:
         url = f"http://cactus.nci.nih.gov/chemical/structure/{ids}/smiles"
@@ -173,17 +151,6 @@ def convert(ids):
         return ans
     except Exception as e:
         l.fatal({traceback.print_exc()})  # haven't tested this yet lol
-
-z = random.choice(['NNccc(ccc[N+]([O-])=O)[N+]([O-])=O',
-                   '[Cu+2].[O-]S(=O)(=O)[O-]',
-                   'OCCc1c(C)[n+](cs1)Cc2cnc(C)nc2N',
-                   'COc1cc(C=O)ccc1O',
-                   'CC(=O)OC1=CC=CC=C1C(=O)O',
-                   'C(C1C(C(C(C(O1)O)O)O)O)O',
-                   'C(I)(I)I',
-                   'CCOCC'])
-g = molecule()
-
 def smile(z,g):
     anchor = None
     index = 0
@@ -230,14 +197,29 @@ def smile(z,g):
                 del rings[token]
             else:
                 rings[token] = (index-1,next_bond)     
-    return None
+    return g.add_hydrogens()
+
+
+z = random.choice(['NNccc(ccc[N+]([O-])=O)[N+]([O-])=O',
+                   '[Cu+2].[O-]S(=O)(=O)[O-]',
+                   'OCCc1c(C)[n+](cs1)Cc2cnc(C)nc2N',
+                   'COc1cc(C=O)ccc1O',
+                   'CC(=O)OC1=CC=CC=C1C(=O)O',
+                   'C(C1C(C(C(C(O1)O)O)O)O)O',
+                   'C(I)(I)I',
+                   'CCOCC',
+                   'c1ccccc1',
+                   'C1CCCCC1',
+                   'C#N',
+                   'NC(Cl)(Br)C(=O)O', #canonical
+                   'O=C(O)C(N)(Br)Cl' #non canonical
+                   ])
+g = molecule()
 print(z)
 smile(z,g)
-g.add_hydrogens()
 lol = g.graph()
 lolz = nx.Graph(lol)
 nx.draw_networkx(lolz, with_labels = True, node_color = "c", edge_color = "k", font_size = 8)
-
 plt.axis('off')
 plt.draw()
 plt.savefig("graph.pdf")
