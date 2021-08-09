@@ -4,15 +4,10 @@ import operator
 
 
 group_13 = ['B','Al', 'Ga','In']
-group_14 = ['C','Si','Ge','Sn','Pb']
-group_15 = ['N','P','As']
-group_16 = ['O','S','Se']
+group_14 = ['C','c','Si','Ge','Sn','Pb']
+group_15 = ['N','n','P','As']
+group_16 = ['O','o','S','Se']
 group_17 = ['F','Cl','Br','I']
-special_case = ['c','n','o']
-
-
-
-
 
 
 
@@ -56,7 +51,10 @@ class molecule:
         s = 0
         for x,y in self.molecule[atom]:
             s += y
-        return s          
+        return s
+    def HC(self,atom):
+        s = self.bond_sum(atom)
+        return atom.valency - s
     def add_hydrogens(self):
         pass
     def fix_valence(self):
@@ -102,8 +100,6 @@ class atom(object):
             return 2
         elif name in group_17:
             return 1
-        elif name in special_case:
-            return 1.5
         else:
             return 0
             
@@ -225,7 +221,8 @@ def smile(z,g):
 print(z)
 smile(z,g)
 print(g.graph())
-print(g.get_valence(1))
+print(g.HC(g.get_atom(1)))
+
 
 
             
