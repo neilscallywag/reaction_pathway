@@ -1,12 +1,9 @@
-import pprint
 import requests
 import random
 import operator
-import networkx as nx
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-pp = pprint.PrettyPrinter(indent=4)   
+
+
+# Molecule is initialised 
 class molecule:
     def __init__(self):
         self.molecule = {} 
@@ -18,6 +15,8 @@ class molecule:
             z = [x[0].index for x in v]          
             d[k.index] = z
         return d
+    def schema(self):
+        return self.molecule
              
     def add_bond(self,u,v,w=1):
         self.molecule[u].append((v,w))
@@ -45,16 +44,26 @@ class molecule:
         pass
     def fix_valence(self):
         pass
-    def fix_charge(self):
+    def fix_charge(self): #currently charges are not included 
+        pass
+    def fix_aromatic_bonds(self): #currently all aromatic bonds are either order 1 or 2
         pass
 
-               
+#atom is initialised with certain properties
+    #1. A.I index
+    #2. Name
+    #3 Valency min(2 numbers based on bonds)
+    #4. Aromaticity based on if the character is lower cased or upper case
+# To add:
+    #1. Hybridisation to help form aromatic rings
+
 class atom(object):
     def __init__(self,index,name,valency=None,charge=0):
         self.index = index
         self.name = name
         self.valency = valency
         self.charge = charge
+        self.aromatic = True if name.islower() else False
     def attributes(self):
        print(self.index,self.name,self.valency,self.charge)
     def valency(self):
@@ -63,6 +72,9 @@ class atom(object):
         return self.index
     def name(self):
         return self.name
+    def aromatic(self):
+        return self.aromatic
+    
        
 #idea extracted from pysmiles library 
 def tokenise(smiles):
@@ -139,7 +151,6 @@ def smile(z,g):
     default = 1
     stack = tokenise(z)
     rings = {}
-    pp.pprint(stack)
     for tokentype,token in stack:
         if tokentype == 'atom':
             g.add_atom(atom(index,token))
@@ -153,10 +164,8 @@ def smile(z,g):
             index += 1
         elif tokentype == 'sb':
             branches.append(anchor)
-            print('b',branches)
         elif tokentype == 'eb':
             anchor = branches.pop()
-            print('a',anchor)
         elif tokentype == 'bond':
             next_bond = token
         elif tokentype == 'ring':
@@ -182,15 +191,8 @@ def smile(z,g):
                 rings[token] = (index-1,next_bond)     
     return None
 print(z)
-smile(z,g)   
-pp.pprint(g.graph())
-'''
-lolz = nx.Graph(lol)
-nx.draw_networkx(lolz, with_labels = True, node_color = "c", edge_color = "k", font_size = 8)
+smile(z,g)
+print(g.graph())
 
-plt.axis('off')
-plt.draw()
-plt.savefig("graph.pdf")
-'''
 
             
