@@ -1,7 +1,11 @@
+
 import requests
 import random
 import operator
-
+import networkx as nx
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 group_13 = ['B','Al', 'Ga','In']
 group_14 = ['C','c','Si','Ge','Sn','Pb']
@@ -230,9 +234,13 @@ def smile(z,g):
 print(z)
 smile(z,g)
 g.add_hydrogens()
-print(g.graph())
+lol = g.graph()
+lolz = nx.Graph(lol)
+nx.draw_networkx(lolz, with_labels = True, node_color = "c", edge_color = "k", font_size = 8)
 
-
+plt.axis('off')
+plt.draw()
+plt.savefig("graph.pdf")
 
 
             
