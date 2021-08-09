@@ -56,7 +56,16 @@ class molecule:
         s = self.bond_sum(atom)
         return atom.valency - s
     def add_hydrogens(self):
-        pass
+        last_atom_index = list(self.molecule)[-1]
+        counter = last_atom_index.index + 1
+        f = self.molecule.copy()
+        for k in f.keys():
+            hydrogen_count = self.HC(k)
+            for hydrogen_index in range(hydrogen_count):
+                self.add_atom(atom(counter,'H'))
+                self.add_bond(self.get_atom(k.index),self.get_atom(counter), 1)
+                counter +=1 
+        
     def fix_valence(self):
         pass
     def fix_charge(self): #currently charges are not included 
@@ -220,8 +229,9 @@ def smile(z,g):
     return None
 print(z)
 smile(z,g)
+g.add_hydrogens()
 print(g.graph())
-print(g.HC(g.get_atom(1)))
+
 
 
 
