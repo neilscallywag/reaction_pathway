@@ -1,16 +1,20 @@
 # reaction_pathway
-script to solve reaction pathways for alevel questions
+script to help solve reaction pathways for alevel questions
 
 
 ### Input
-* Solve(initial,final,number_of_stages): 
-* Take intitial and final product in the form of the chemical formula
-* Take number of stages as number of steps it takes to reach the product (To limit searching through different branches of nodes)
+* IUPAC name for a molecule 
 
 
-### Backend requirements
-1. Labelling the elements
-2. Hall mark table: -
+
+### How it works?
+1. Converting IUPAC name to SMILES string format
+2. Convert SMILES string to graph data structure with Nodes as Atoms and Edges as bonds
+3. Give weights to the bonds by bond order 
+4. Add hydrogens based on (valency-surrounding bonds)
+5. Fix aromaticity (Not much attention is given to this as most a level questions do not require u to break aromatic rings
+6. Dijkstra's algo to find prerequisities defined in hallmark table
+7. Hall mark table: -
 * This represents what are the prerequisities for the molecule to be considered to undergo a particular reaction. Eg
 * 
 | Hall Mark  | Potential reactions | Product |
@@ -22,6 +26,3 @@ script to solve reaction pathways for alevel questions
 
 
 
-### Assumptions
-* No non carbon molecule is bonded to another non carbon molecule
-* No pathway where multiple intermediate products are created and we have to pick one (For now)
