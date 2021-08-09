@@ -3,6 +3,19 @@ import random
 import operator
 
 
+group_13 = ['B','Al', 'Ga','In']
+group_14 = ['C','Si','Ge','Sn','Pb']
+group_15 = ['N','P','As']
+group_16 = ['O','S','Se']
+group_17 = ['F','Cl','Br','I']
+special_case = ['c','n','o']
+
+
+
+
+
+
+
 # Molecule is initialised 
 class molecule:
     def __init__(self):
@@ -35,6 +48,10 @@ class molecule:
         k = list(self.molecule)
         key = k[index]
         return key
+    def get_valence(self,index):
+        k = list(self.molecule)
+        key = k[index]
+        return key.valency        
     def bond_sum(self,atom):
         s = 0
         for x,y in self.molecule[atom]:
@@ -58,10 +75,10 @@ class molecule:
     #1. Hybridisation to help form aromatic rings
 
 class atom(object):
-    def __init__(self,index,name,valency=None,charge=0):
+    def __init__(self,index,name,charge=0):
         self.index = index
         self.name = name
-        self.valency = valency
+        self.valency = self.get_valency(name)
         self.charge = charge
         self.aromatic = True if name.islower() else False
     def attributes(self):
@@ -74,6 +91,22 @@ class atom(object):
         return self.name
     def aromatic(self):
         return self.aromatic
+    def get_valency(self,name):
+        if name in group_13:
+            return 3
+        elif name in group_14:
+            return 4
+        elif name in group_15:
+            return 3
+        elif name in group_16:
+            return 2
+        elif name in group_17:
+            return 1
+        elif name in special_case:
+            return 1.5
+        else:
+            return 0
+            
     
        
 #idea extracted from pysmiles library 
@@ -82,7 +115,6 @@ def tokenise(smiles):
     smiles = iter(z)
     queue =[]
     token = '' 
-    valency_table = {"B": (3,), "C": (4,), "N": (3, 5), "O": (2,), "P": (3, 5), "S": (2, 4, 6), "F": (1,), "Cl": (1,), "Br": (1,),"I": (1,)}
     peek = None
     while True:
         char = peek if peek else next(smiles,'')
@@ -193,6 +225,7 @@ def smile(z,g):
 print(z)
 smile(z,g)
 print(g.graph())
+print(g.get_valence(1))
 
 
             
