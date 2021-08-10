@@ -7,6 +7,9 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import json
+import yaml
+from collections import defaultdict
+from pprint import pprint
 
 group_13 = ['B','Al', 'Ga','In']
 group_14 = ['C','c','Si','Ge','Sn','Pb']
@@ -15,7 +18,10 @@ group_16 = ['O','o','S','s','Se']
 group_17 = ['F','Cl','Br','I']
 class molecule:
     def __init__(self):
-        self.molecule = {} 
+        self.molecule = {}
+    def __iter__(self):
+        for each in self.molecule.values():
+            yield each    
     def add_atom(self,atom):
             self.molecule[atom] = [] 
     def graph(self):
@@ -71,6 +77,31 @@ class molecule:
         pass
     def fix_aromatic_bonds(self): #currently all aromatic bonds are either order 1 or 2
         pass
+    def carboxyl(self) -> bool:
+        c = 0
+        for atom in self.molecule.keys():
+            for value in self.molecule[atom]:
+                print(value[0].name , value[1])
+                if (value[0].name == 'O' and value[1] == 2 and (atom.name == 'C' or atom.name == 'c')) or (value[0].name == 'C' and value[1] == 2 and (atom.name == 'O')):
+                    c +=1
+        if c == 2:
+            return print('y')
+        else:
+            return print('n')
+                    
+                    
+                
+
+        #for atom in self.molecule:
+         #   if atom.name == "C":
+          #      for values in atom:
+           #         if values[0].name == "O" and values[1] == 2:
+            #            return True
+             #       else:
+              #          return False
+                        
+
+
 class atom(object):
     def __init__(self,index,name,charge=0):
         self.index = index
@@ -203,7 +234,13 @@ def smile(z,g):
     return g.add_hydrogens()
 
 
-z = random.choice(['NNccc(ccc[N+]([O-])=O)[N+]([O-])=O',
+
+
+
+z = 'CC(=O)OC'
+
+'''
+random.choice(['NNccc(ccc[N+]([O-])=O)[N+]([O-])=O',
                    '[Cu+2].[O-]S(=O)(=O)[O-]',
                    'OCCc1c(C)[n+](cs1)Cc2cnc(C)nc2N',
                    'COc1cc(C=O)ccc1O',
@@ -211,17 +248,26 @@ z = random.choice(['NNccc(ccc[N+]([O-])=O)[N+]([O-])=O',
                    'C(C1C(C(C(C(O1)O)O)O)O)O',
                    'C(I)(I)I',
                    'CCOCC',
-                   'c1ccccc1',
+                   'c1ccccc1', # need to kekulize this benzene. Current output results in all the bonds being order 1
                    'C1CCCCC1',
                    'C#N',
                    'NC(Cl)(Br)C(=O)O', #canonical
                    'O=C(O)C(N)(Br)Cl' #non canonical
                    ])
+
+                '''
 g = molecule()
 print(z)
 smile(z,g)
+lol = g.schema()
+pprint(lol)
+g.carboxyl()
+
+'''
 lol = g.graph()
+zzz = g.schema()
 print(json.dumps(lol, indent=2, default=str))
+pprint(zzz)
 G = nx.Graph(lol)
 pos=nx.spring_layout(G, k=0.3*1/np.sqrt(len(g.nodes())), iterations=500) 
 nx.draw_networkx(G,pos)
@@ -230,3 +276,4 @@ nx.draw_networkx_edge_labels(G,pos,edge_labels=labels)
 plt.axis('off')
 plt.draw()
 plt.savefig("graph.pdf")
+'''
