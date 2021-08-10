@@ -5,6 +5,9 @@ import networkx as nx
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import numpy as np
+import json
+
 group_13 = ['B','Al', 'Ga','In']
 group_14 = ['C','c','Si','Ge','Sn','Pb']
 group_15 = ['N','n','P','As']
@@ -18,7 +21,7 @@ class molecule:
     def graph(self):
         d = {}
         for k,v in self.molecule.items():
-            z = [x[0].index for x in v]          
+            z = {x[0].index: {'bond-order':x[1]} for x in v}
             d[k.index] = z
         return d
     def schema(self):
@@ -76,7 +79,7 @@ class atom(object):
         self.charge = charge
         self.aromatic = True if name.islower() else False
     def attributes(self):
-       print(self.index,self.name,self.valency,self.charge)
+       return None
     def valency(self):
         return self.valency
     def index(self):
@@ -218,11 +221,12 @@ g = molecule()
 print(z)
 smile(z,g)
 lol = g.graph()
-lolz = nx.Graph(lol)
-nx.draw_networkx(lolz, with_labels = True, node_color = "c", edge_color = "k", font_size = 8)
+print(json.dumps(lol, indent=2, default=str))
+G = nx.Graph(lol)
+pos=nx.spring_layout(G, k=0.3*1/np.sqrt(len(g.nodes())), iterations=500) 
+nx.draw_networkx(G,pos)
+labels = nx.get_edge_attributes(G,'bond-order')
+nx.draw_networkx_edge_labels(G,pos,edge_labels=labels)
 plt.axis('off')
 plt.draw()
 plt.savefig("graph.pdf")
-
-
-            
