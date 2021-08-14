@@ -352,16 +352,33 @@ class molecule:
         Function group methods
     '''
     def exists(self):
+        
         valid_fg = ['primary amine','secondary amine', 'tertiary amine',
                     'primary alcohol', 'secondary alcohol', 'tertiary alcohol',
                     'carboxylic acid', 'acyl chloride', 'ester',
                     'halogenoalkane', 'aldehyde', 'ketone']
-        present = []                                                 
+        present = []
+
+        '''
+                Amines: Since nitrogen has a normal valence of three,
+                        we can also conclude that there are two N-H bonds in primary amines
+                        and one N-H bond in secondary amines.
+                        In tertiary amines there are no N-H bonds.
+
+                     
+               Alcohols: Carbon needs to be bonded to an O by bond order of 1 (Single Bond).
+                         The Oxygen should only be bonded to the C and another H hence len = 2
+                         The other 3 peripheral groups can be either R groups or H.
+                         For Primary Alcohol, C = [ H, O, H, R] & O = [ C, H ]
+                         For Secondary Alcohol, C = [ H, O, R, R] & O = [ C, H ],
+                         For Tertiary Alcohol, C = [ R, O, R, R] & O = [ C, H ]
+         
+        '''
         for atom in self.molecule.keys():
+
             if atom.name == 'N':
                 if len(self.molecule[atom]) == 3:
                     hcount = 0
-                    ccount = 0
                     others = 0
                     for tuples in self.molecule[atom]:
                         if tuples[0].name == 'H':
@@ -377,7 +394,7 @@ class molecule:
 
 
             elif atom.name == 'C':
-                if len(self.molecule[atom]) == 4: # C = [ R, O, H ,H]
+                if len(self.molecule[atom]) == 4: # C = [ R, O, R ,R]
                     hcount = 0
                     alcohol = 0
                     others = 0
