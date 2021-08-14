@@ -1,10 +1,7 @@
 import requests
-import random
 import networkx as nx
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-import json
 
 
 '''
