@@ -352,7 +352,10 @@ class molecule:
         Function group methods
     '''
     def exists(self):
-        valid_fg = ['primary amine','secondary amine', 'tertiary amine', 'primary alcohol', 'secondary alcohol', 'tertiary alcohol', 'carboxylic acid', 'acyl chloride', 'ester', 'halogenoalkane', 'aldehyde', 'ketone']
+        valid_fg = ['primary amine','secondary amine', 'tertiary amine',
+                    'primary alcohol', 'secondary alcohol', 'tertiary alcohol',
+                    'carboxylic acid', 'acyl chloride', 'ester',
+                    'halogenoalkane', 'aldehyde', 'ketone']
         present = []                                                 
         for atom in self.molecule.keys():
             if atom.name == 'N':
@@ -367,21 +370,34 @@ class molecule:
                             others += 1
                     if hcount == 2 and others == 1:
                         present.append(valid_fg[0]) #primary amine
-     
-                                                           
-        for atom in self.molecule.keys():
-            if atom.name == 'N':
-                if len(self.molecule[atom]) == 3:
+                    elif hcount == 1 and others == 2: 
+                        present.append(valid_fg[1]) #secondary amine
+                    elif hcount == 0 and others == 3: 
+                        present.append(valid_fg[2]) #tertiary amine
+
+
+            elif atom.name == 'C':
+                if len(self.molecule[atom]) == 4: # C = [ R, O, H ,H]
                     hcount = 0
+                    alcohol = 0
                     others = 0
                     for tuples in self.molecule[atom]:
-                        if tuples[0].name == 'H':
+                        if tuples[0].name == 'O' and tuples[1] == 1:
+                            if len(self.molecule[tuples[0]]) == 2:# O = [C, R]
+                                for tups in self.molecule[tuples[0]]:
+                                    if tups[0].name == 'H':
+                                        alcohol += 1
+                        elif tuples[0].name == 'H':
                             hcount += 1
                         else:
                             others += 1
-                    if hcount == 1 and others == 2: 
-                        present.append(valid_fg[1]) #secondary amine
-
+                    if alcohol == 1 and hcount == 2 and others == 1:   #CH2OH
+                        present.append(valid_fg[3]) #primary alcohol  
+                    elif alcohol == 1 and hcount == 1 and others == 2: #CHROH
+                        present.append(valid_fg[4]) #secondary alcohol
+                    elif alcohol == 1 and hcount == 0 and others == 3: #CR2OH
+                        present.append(valid_fg[5]) #tertiary alcohol                        
+            
 
         return present
 
@@ -479,18 +495,15 @@ def main():
     print('SMILES Format: ', z)
     g = molecule()
     g.smile(z)
-    print(g.nodes())
-    a = g.graph() #index notation
+    a = g.graph()
     b = g.molmass()
     print('Molecular mass: ',b)
     print('functional groups present: ',g.exists())
-    print('Your molecule is saved as graph.pdf')
-    print(json.dumps(a, indent=2, default=str)) #printing the index notation in JSON format
     G = nx.Graph(a)
-    pos=nx.spring_layout(G, k=5*1/np.sqrt(len(g.nodes())), iterations=500)
-    nx.draw_networkx(G,pos)
+    pos=nx.spring_layout(G, k=1*1/np.sqrt(len(g.nodes())), iterations=999)
+    nx.draw_networkx(G,pos,node_size=1, font_size=10)
     labels = nx.get_edge_attributes(G,'bond-order')
-    nx.draw_networkx_edge_labels(G,pos,edge_labels=labels)
+    nx.draw_networkx_edge_labels(G,pos,edge_labels=labels,font_size=5)
     plt.axis('off')
     plt.draw()
     plt.show()
