@@ -351,52 +351,39 @@ class molecule:
     '''
         Function group methods
     '''
-    def exists(self,fg):
+    def exists(self):
         valid_fg = ['primary amine','secondary amine', 'tertiary amine', 'primary alcohol', 'secondary alcohol', 'tertiary alcohol', 'carboxylic acid', 'acyl chloride', 'ester', 'halogenoalkane', 'aldehyde', 'ketone']
-        if fg not in valid_fg:
-            return 'Unknown functional group'
-        if fg == valid_fg[0]:                                                           
-            for atom in self.molecule.keys():
-                if atom.name == 'N':
-                    if len(self.molecule[atom]) == 3:
-                        hcount = 0
-                        ccount = 0
-                        others = 0
-                        for tuples in self.molecule[atom]:
-                            if tuples[0].name == 'H':
-                                hcount += 1
-                            elif tuples[0].name == 'C':
-                                ccount += 1
-                            else:
-                                others += 1
-                        if hcount == 2 and ccount == 1 and others == 0:
-                            return True
+        present = []                                                 
+        for atom in self.molecule.keys():
+            if atom.name == 'N':
+                if len(self.molecule[atom]) == 3:
+                    hcount = 0
+                    ccount = 0
+                    others = 0
+                    for tuples in self.molecule[atom]:
+                        if tuples[0].name == 'H':
+                            hcount += 1
                         else:
-                            return False
-                       
-                    else:
-                        return len(self.molecule[atom])
+                            others += 1
+                    if hcount == 2 and others == 1:
+                        present.append(valid_fg[0]) #primary amine
      
-        elif fg == valid_fg[1]:                                                           
-            for atom in self.molecule.keys():
-                if atom.name == 'N':
-                    if len(self.molecule[atom]) == 3:
-                        hcount = 0
-                        others = 0
-                        for tuples in self.molecule[atom]:
-                            if tuples[0].name == 'H':
-                                hcount += 1
-                            else:
-                                others += 1
-                        if hcount == 1 and others == 2:
-                            return True
+                                                           
+        for atom in self.molecule.keys():
+            if atom.name == 'N':
+                if len(self.molecule[atom]) == 3:
+                    hcount = 0
+                    others = 0
+                    for tuples in self.molecule[atom]:
+                        if tuples[0].name == 'H':
+                            hcount += 1
                         else:
-                            return False
-                       
-                    else:
-                        return len(self.molecule[atom])    
-        else:
-            return '!= fg[1]'
+                            others += 1
+                    if hcount == 1 and others == 2: 
+                        present.append(valid_fg[1]) #secondary amine
+
+
+        return present
 
     '''
                     End Molecule Class
@@ -495,19 +482,19 @@ def main():
     print(g.nodes())
     a = g.graph() #index notation
     b = g.molmass()
-    print('sec amine ?:', g.exists('primary amine'))
     print('Molecular mass: ',b)
+    print('functional groups present: ',g.exists())
     print('Your molecule is saved as graph.pdf')
     print(json.dumps(a, indent=2, default=str)) #printing the index notation in JSON format
     G = nx.Graph(a)
-    pos=nx.spring_layout(G, k=0.3*1/np.sqrt(len(g.nodes())), iterations=500)
+    pos=nx.spring_layout(G, k=5*1/np.sqrt(len(g.nodes())), iterations=500)
     nx.draw_networkx(G,pos)
     labels = nx.get_edge_attributes(G,'bond-order')
     nx.draw_networkx_edge_labels(G,pos,edge_labels=labels)
     plt.axis('off')
     plt.draw()
-    plt.savefig("graph.pdf")
+    plt.show()
 	
 
-if __name__ == "__main__":
+while True:
     main()
