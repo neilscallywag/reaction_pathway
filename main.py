@@ -352,8 +352,8 @@ class molecule:
         
         valid_fg = ['primary amine','secondary amine', 'tertiary amine',
                     'primary alcohol', 'secondary alcohol', 'tertiary alcohol',
-                    'carboxylic acid', 'acyl chloride', 'ester',
-                    'halogenoalkane', 'aldehyde', 'ketone']
+                    'carboxylic acid', 'acyl chloride', 'aldehyde','ketone'
+                    'halogenoalkane', 'ester']
         present = []
 
         '''
@@ -369,6 +369,9 @@ class molecule:
                          For Primary Alcohol, C = [ H, O, H, R] & O = [ C, H ]
                          For Secondary Alcohol, C = [ H, O, R, R] & O = [ C, H ],
                          For Tertiary Alcohol, C = [ R, O, R, R] & O = [ C, H ]
+                
+               Carboxylic acid and its derivatives: C = [(O,2), incoming R, R], R can be OH for carboxylic acid, H for aldehyde, others for Ketone.
+
          
         '''
         for atom in self.molecule.keys():
@@ -410,7 +413,57 @@ class molecule:
                     elif alcohol == 1 and hcount == 1 and others == 2: #CHROH
                         present.append(valid_fg[4]) #secondary alcohol
                     elif alcohol == 1 and hcount == 0 and others == 3: #CR2OH
-                        present.append(valid_fg[5]) #tertiary alcohol                        
+                        present.append(valid_fg[5]) #tertiary alcohol
+
+               
+                elif len(self.molecule[atom]) == 3:
+                    
+                    hcount= 0
+                    pi = 0
+                    alcohol = 0
+                    others = 0
+                    halogen = 0
+                    for tuples in self.molecule[atom]:
+                        if tuples[0].name == 'O' and tuples[1] == 2:
+                            if len(self.molecule[tuples[0]]) == 1: # O = [C]
+                                for tups in self.molecule[tuples[0]]:
+                                    if tups[0].name == 'C' and tups[1] == 2:
+                                        pi +=1
+                        elif tuples[0].name == 'O' and tuples[1] == 1:
+                            if len(self.molecule[tuples[0]]) == 2:# O = [C, R]
+                                for tups in self.molecule[tuples[0]]:
+                                    if tups[0].name == 'H':
+                                        alcohol += 1
+                        elif tuples[0].name == 'H':
+                            hcount +=1
+                        elif tuples[0].name in group_17:
+                            halogen +=1
+                        else:
+                            others +=1
+                    '''
+                        Carboxylic acid { C = [(O,2),(O,1),R] hence pi = 1, others = 1 and alcohol = 1
+                        acyl-halogen  { C = [(O,2),(O,1),R] hence pi = 1, halogen = 1 and others = 1
+                        aldehyde  { C = [(O,2),(O,1),R] hence pi = 1, others = 1 and alcohol = 1
+                        ketone { C = [(O,2),(O,1),R] hence pi = 1, others = 1 and alcohol = 1
+                    '''
+                    print(pi, alcohol, others, halogen, hcount)
+                    if pi == 1 and alcohol == 1 and others >= 0 and halogen == 0 and hcount >= 0:
+                        present.append(valid_fg[6]) #Carboxylic acid
+                    elif pi == 1 and alcohol == 0 and others == 1 and halogen == 1 and hcount == 0:
+                        present.append(valid_fg[7]) #acyl acid
+                    elif pi == 1 and alcohol == 0 and hcount == 1 and others == 1 and halogen == 0:
+                        present.append(valid_fg[8]) #aldehyde
+                    elif pi == 1 and alcohol == 0 and hcount == 0 and others == 2 and halogen == 0:
+                        present.append(valid_fg[9]) #ketone
+                        
+                        
+
+                                
+                                
+                            
+
+                                               
+                                 
             
 
         return present
