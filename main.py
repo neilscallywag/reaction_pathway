@@ -65,6 +65,7 @@ class atom(object):
         self.charge = charge
         self.ar = atomic_mass[name] if name in atomic_mass else 0
         self.aromatic = True if name.islower() else False
+        self.lpcount = (self.velectrons(name) - self.get_valency(name))//2
     def valency(self):
         return self.valency
     def index(self):
@@ -89,6 +90,20 @@ class atom(object):
             return 1
         else:
             return 0
+    def get_velectrons(self,name):
+        if name in group_13:
+            return 3
+        elif name in group_14:
+            return 4
+        elif name in group_15:
+            return 5
+        elif name in group_16:
+            return 6
+        elif name in group_17:
+            return 7
+        else:
+            return 0
+
 
 
 
@@ -223,8 +238,6 @@ class molecule:
     '''
     def get_surrounding_atoms(self,atom):
         current = len(self.molecule[atom])
-        if atom in self.molecule[atom]:
-            current += 1
         return current
 
     '''
@@ -279,6 +292,36 @@ class molecule:
                 self.add_atom(atom(counter,'H'))
                 self.add_bond(self.get_atom(k.index),self.get_atom(counter), 1)
                 counter +=1
+    '''
+        Adding hydridisation information:
+                Trick here is to take:
+                x = sum of surrounding atoms (not bond sum) + numbers of lone pair
+                hybridisation = sp(x-1)
+
+                Special Cases:
+                1. Lone pairs adjacent to Pi-Bonds. Lone pairs adjacent to pi-systems tend to be in unhybridised p orbitals, rather than in hybridised sp^n orbitals.
+                So for example, N in amide structure is SP2 hybridised rather than SP3.
+            
+                            
+
+    '''
+    def hybridise(self):
+        for atoms in self.molecule.keys():
+            mol = list(self.molecule)
+            try:
+                next_ = mol[mol.index(atoms.index) +1]
+            except (ValueError,IndexError):
+                next_ = None
+            try:
+                prev_ = mol[mol.index(atoms.index) -1]
+            except (ValueError,IndexError):
+                prev_ = None
+        pass
+                
+
+        
+        
+
 
 
     '''
@@ -353,8 +396,10 @@ class molecule:
         valid_fg = ['primary amine','secondary amine', 'tertiary amine',
                     'primary alcohol', 'secondary alcohol', 'tertiary alcohol',
                     'carboxylic acid', 'acyl chloride', 'aldehyde','ketone',
-                    'halogenoalkane', 'ester']
+                    'halogenoalkane',
+                    'primary amide','secondary amide','tertiary amide']
         present = []
+
 
         '''
                 Amines: Since nitrogen has a normal valence of three,
@@ -372,33 +417,23 @@ class molecule:
                 
                Carboxylic acid and its derivatives: C = [(O,2), incoming R, R], R can be OH for carboxylic acid, H for aldehyde, others for Ketone.
 
+
+               Amides: C = [ (O,2), (N,1) , R] and N = [(C,1), R, R] where R can be H or R groups to deterine primary, secondary , or tertiary amide.
+
          
         '''
+
         for atom in self.molecule.keys():
-
-            if atom.name == 'N':
-                if len(self.molecule[atom]) == 3:
-                    hcount = 0
-                    others = 0
-                    for tuples in self.molecule[atom]:
-                        if tuples[0].name == 'H':
-                            hcount += 1
-                        else:
-                            others += 1
-                    if hcount == 2 and others == 1:
-                        present.append(valid_fg[0]) #primary amine
-                    elif hcount == 1 and others == 2: 
-                        present.append(valid_fg[1]) #secondary amine
-                    elif hcount == 0 and others == 3: 
-                        present.append(valid_fg[2]) #tertiary amine
+            hcount = 0
+            alcohol = 0
+            others = 0
+            halogen = 0
+            Nhcount = 0            
 
 
-            elif atom.name == 'C':
+            if atom.name == 'C':
                 if len(self.molecule[atom]) == 4: # C = [ R, O, R ,R]
-                    hcount = 0
-                    alcohol = 0
-                    others = 0
-                    halogen = 0
+                 
                     for tuples in self.molecule[atom]:
                         if tuples[0].name == 'O' and tuples[1] == 1:
                             if len(self.molecule[tuples[0]]) == 2:# O = [C, R]
@@ -409,16 +444,35 @@ class molecule:
                             hcount += 1
                         elif tuples[0].name in group_17:
                             halogen += 1
+                        elif tuples[0].name == 'N':
+                            
+                            if len(self.molecule[tuples[0]]) == 3:
+                                   
+                                   for x in self.molecule[tuples[0]]:
+                                   
+                                       if x[0].name == 'H':
+                                           Nhcount += 0
+
                         else:
                             others += 1
-                    if halogen >=0:
+                    if halogen >=1:
                         present.append(valid_fg[10]) #halogenoalkane       
-                    if alcohol == 1 and hcount == 2 and (others != 0 or halogen != 0):   #CH2OH
+                    if alcohol == 1 and hcount >= 2:   #CH2OH
                         present.append(valid_fg[3]) #primary alcohol  
-                    elif alcohol == 1 and hcount == 1 and (others != 0 or halogen != 0): #CHROH
+                    elif alcohol == 1 and hcount == 1: #CHROH
                         present.append(valid_fg[4]) #secondary alcohol
-                    elif alcohol == 1 and hcount == 0 and (others != 0 or halogen != 0): #CR2OH
+                    elif alcohol == 1 and hcount == 0: #CR2OH
                         present.append(valid_fg[5]) #tertiary alcohol
+
+                    if Nhcount == 2 and others == 1:
+                        present.append(valid_fg[0]) #primary amine
+                    elif Nhcount == 1 and others == 2: 
+                        present.append(valid_fg[1]) #secondary amine
+                    elif Nhcount == 0 and others == 3: 
+                        present.append(valid_fg[2]) #tertiary amine
+
+                
+
 
             
 
@@ -429,12 +483,20 @@ class molecule:
                     alcohol = 0
                     others = 0
                     halogen = 0
+                    amideH = 0
+                    Ncount = 0
                     for tuples in self.molecule[atom]:
                         if tuples[0].name == 'O' and tuples[1] == 2:
                             if len(self.molecule[tuples[0]]) == 1: # O = [C]
                                 for tups in self.molecule[tuples[0]]:
                                     if tups[0].name == 'C' and tups[1] == 2:
                                         pi +=1
+                        if tuples[0].name == 'N' and tuples[1] == 1:     
+                            Ncount +=1
+                            for tups in self.molecule[tuples[0]]:
+                                if len(self.molecule[tuples[0]]) == 3:
+                                    if tups[0].name == 'H':
+                                        amideH +=1
                         elif tuples[0].name == 'O' and tuples[1] == 1:
                             if len(self.molecule[tuples[0]]) == 2:# O = [C, R]
                                 for tups in self.molecule[tuples[0]]:
@@ -444,6 +506,7 @@ class molecule:
                             hcount +=1
                         elif tuples[0].name in group_17:
                             halogen +=1
+                       
                         else:
                             others +=1
                     '''
@@ -458,16 +521,18 @@ class molecule:
                         present.append(valid_fg[7]) #acyl acid
                     elif pi == 1 and alcohol == 0 and hcount == 1 and others == 1 and halogen == 0:
                         present.append(valid_fg[8]) #aldehyde
-                    elif pi == 1 and alcohol == 0 and hcount == 0 and others == 2 and halogen == 0:
+                    elif pi == 1 and alcohol == 0 and hcount == 0 and others == 2 and halogen == 0 and Ncount == 0:
                         present.append(valid_fg[9]) #ketone
-                        
 
+                    if pi == 1 and alcohol == 0 and hcount == 0 and Ncount == 1 and others == 1 and amideH == 2:
+                        present.append(valid_fg[11]) #Primary Amide
+                    elif pi == 1 and alcohol == 0 and hcount == 0 and Ncount == 1 and others == 1 and amideH == 1:
+                        present.append(valid_fg[12]) #Secondary Amide
+                    elif pi == 1 and alcohol == 0 and hcount == 0 and Ncount == 1 and others == 1 and amideH == 0:
+                        present.append(valid_fg[13]) #Tertiary amide
 
-                        
-
-                                
-                                
-                            
+                
+       
 
                                                
                                  
