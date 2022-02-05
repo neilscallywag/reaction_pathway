@@ -13,7 +13,7 @@ script to help solve reaction pathways for alevel questions
 3. Give weights to the bonds by bond order 
 4. Add hydrogens based on (valency-surrounding bonds)
 5. Fix aromaticity (Not much attention is given to this as most a level questions do not require u to break aromatic rings
-6. Subgraph isomorphism algo to find prerequisities defined in hallmark table
+6. Detailed explainantion of what the code does is included within the code
 7. Hall mark table: -
 * This represents what are the prerequisities for the molecule to be considered to undergo a particular reaction. Eg
 * 
